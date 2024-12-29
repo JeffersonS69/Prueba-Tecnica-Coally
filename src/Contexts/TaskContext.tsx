@@ -58,9 +58,12 @@ export const TaskProvider: FC<TaskProviderProps> = ({ children }) => {
   };
 
   const addTask = async (task: Omit<Task, "_id" | "createdAt">) => {
+    const { access_token } = await fetchToken();
     try {
       setLoadingAdd(true);
-      const response = await api.post("/tasks", task);
+      const response = await api.post("/tasks", task, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
       setTasks([...tasks, response.data]);
       toaster.success({
         description: messageTaskAdded,
@@ -78,9 +81,12 @@ export const TaskProvider: FC<TaskProviderProps> = ({ children }) => {
   };
 
   const updateTask = async (id: string, updates: Partial<Task>) => {
+    const { access_token } = await fetchToken();
     try {
       setLoadingUpdate(true);
-      const response = await api.put(`/tasks/${id}`, updates);
+      const response = await api.put(`/tasks/${id}`, updates, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
       setTasks((prev) =>
         prev.map((task) => (task._id === id ? response.data : task))
       );
@@ -100,8 +106,11 @@ export const TaskProvider: FC<TaskProviderProps> = ({ children }) => {
   };
 
   const deleteTask = async (id: string) => {
+    const { access_token } = await fetchToken();
     try {
-      await api.delete(`/tasks/${id}`);
+      await api.delete(`/tasks/${id}`, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
       setTasks((prev) => prev.filter((task) => task._id !== id));
       toaster.success({
         description: messageTaskDeleted,
