@@ -28,10 +28,23 @@ export const TaskProvider: FC<TaskProviderProps> = ({ children }) => {
   const [loadingFetch, setLoadingFetch] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
 
+  const fetchToken = async () => {
+    const response = await api.post("/auth/login", {
+      username: import.meta.env.VITE_USERNAME,
+      password: import.meta.env.VITE_PASSWORD,
+    });
+    return response.data;
+  };
+
   const fetchTasks = async () => {
+    const { access_token } = await fetchToken();
     try {
       setLoadingFetch(true);
-      const response = await api.get(`/tasks`);
+      const response = await api.get(`/tasks`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
       setTasks(response.data);
     } catch (error) {
       console.error(messageErrorFetchingTasks, error);
